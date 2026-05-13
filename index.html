@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes Notebook</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <style>
+    :root {
+      --primary: #4A90D9;
+      --primary-light: #6BA3E0;
+      --primary-dark: #2C5F8A;
+      --bg: #E8F4FD;
+      --sidebar-bg: #F0F7FF;
+      --card-bg: #FFFFFF;
+      --text: #2C5F8A;
+      --text-light: #6B8FA8;
+      --text-muted: #8BA8C0;
+      --accent: #B3D9F2;
+      --tag-bg: #D4E8F7;
+      --border: #C5D9E8;
+      --danger: #D95A4A;
+      --danger-bg: #FDEDEC;
+      --success: #3E9B6B;
+      --shadow: 0 2px 8px rgba(74, 144, 217, 0.12);
+      --radius: 8px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    input,
+    textarea,
+    button {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== Login Page ===== */
+    #login-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .login-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+
+    .login-card h1 {
+      font-size: 24px;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+
+    .login-subtitle {
+      color: var(--text-light);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .login-card input:focus {
+      border-color: var(--primary);
+    }
+
+    .login-card button {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .login-card button:hover {
+      background: var(--primary-dark);
+    }
+
+    #login-error {
+      color: var(--danger);
+      font-size: 14px;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+
+    /* ===== App Layout ===== */
+    #app {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== Header ===== */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--primary);
+      color: white;
+      padding: 8px 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 18px;
+      white-space: nowrap;
+    }
+
+    .sidebar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-right input {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      outline: none;
+      width: 200px;
+      transition: background 0.2s, width 0.2s;
+      font-size: 14px;
+    }
+
+    .header-right input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .header-right input:focus {
+      background: rgba(255, 255, 255, 0.3);
+      width: 260px;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .btn-icon:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-logout {
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* ===== Main Container ===== */
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ===== Sidebar ===== */
+    #sidebar {
+      width: 260px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .sidebar-section {
+      padding: 12px 16px 8px;
+    }
+
+    .sidebar-section h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-light);
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    #tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .tag-btn {
+      padding: 3px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card-bg);
+      color: var(--text-light);
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .tag-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .tag-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .btn-new {
+      margin: 8px 16px;
+      padding: 8px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+      text-align: center;
+    }
+
+    .btn-new:hover {
+      background: var(--primary-dark);
+    }
+
+    .note-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 8px 16px;
+    }
+
+    .note-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: background 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    .note-item:hover {
+      background: var(--accent);
+    }
+
+    .note-item.active {
+      background: var(--primary);
+      color: white;
+      border-left-color: var(--primary-dark);
+    }
+
+    .note-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .note-item-preview {
+      font-size: 12px;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .note-item.active .note-item-preview {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .note-item-tags {
+      display: flex;
+      gap: 3px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .note-item-tag {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      background: var(--tag-bg);
+      color: var(--text-light);
+    }
+
+    .note-item.active .note-item-tag {
+      background: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* ===== Content Area ===== */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .empty-state h2 {
+      font-size: 20px;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+
+    /* ===== Note View ===== */
+    .content-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .note-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .toolbar-actions button {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+
+    .toolbar-actions button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-danger {
+      color: var(--danger) !important;
+      border-color: #e8c5c0 !important;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-bg) !important;
+      border-color: var(--danger) !important;
+    }
+
+    #view-title {
+      font-size: 24px;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .tags-display {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tag-badge {
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: var(--tag-bg);
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .tag-badge:hover {
+      background: var(--accent);
+    }
+
+    /* ===== Note Editor ===== */
+    .editor-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .editor-tabs .tab {
+      padding: 8px 20px;
+      border: none;
+      background: none;
+      color: var(--text-light);
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.15s;
+    }
+
+    .editor-tabs .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+
+    #edit-title {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 18px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 8px;
+    }
+
+    #edit-title:focus {
+      border-color: var(--primary);
+    }
+
+    #edit-tags {
+      width: 100%;
+      padding: 8px 12px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 8px;
+      color: var(--text-light);
+    }
+
+    #edit-tags:focus {
+      border-color: var(--primary);
+    }
+
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      padding: 8px 12px;
+      background: var(--sidebar-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .btn-upload {
+      padding: 4px 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+
+    .btn-upload:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .editor-textarea {
+      width: 100%;
+      min-height: 400px;
+      padding: 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .editor-textarea:focus {
+      border-color: var(--primary);
+    }
+
+    #preview-pane {
+      min-height: 400px;
+      padding: 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card-bg);
+    }
+
+    .editor-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .save-status {
+      font-size: 13px;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .editor-actions button {
+      padding: 8px 24px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+
+    .editor-actions button:not(.btn-primary) {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .editor-actions button:not(.btn-primary):hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    /* ===== Markdown Body ===== */
+    .markdown-body {
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .markdown-body h1,
+    .markdown-body h2,
+    .markdown-body h3 {
+      color: var(--primary-dark);
+      margin: 20px 0 10px;
+    }
+
+    .markdown-body h1 {
+      font-size: 22px;
+    }
+
+    .markdown-body h2 {
+      font-size: 18px;
+    }
+
+    .markdown-body h3 {
+      font-size: 16px;
+    }
+
+    .markdown-body p {
+      margin-bottom: 12px;
+    }
+
+    .markdown-body ul,
+    .markdown-body ol {
+      margin-bottom: 12px;
+      padding-left: 24px;
+    }
+
+    .markdown-body li {
+      margin-bottom: 4px;
+    }
+
+    .markdown-body blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 8px 16px;
+      margin: 12px 0;
+      background: var(--sidebar-bg);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      color: var(--text-light);
+    }
+
+    .markdown-body table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 12px 0;
+    }
+
+    .markdown-body th,
+    .markdown-body td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .markdown-body th {
+      background: var(--sidebar-bg);
+      font-weight: 600;
+    }
+
+    .markdown-body img {
+      max-width: 100%;
+      border-radius: var(--radius);
+      margin: 12px 0;
+      box-shadow: var(--shadow);
+    }
+
+    .markdown-body hr {
+      border: none;
+      border-top: 2px solid var(--border);
+      margin: 20px 0;
+    }
+
+    .markdown-body code {
+      background: #F0F4F8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 0.9em;
+      color: #D63384;
+    }
+
+    .markdown-body pre {
+      position: relative;
+      margin: 16px 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .markdown-body pre code {
+      all: unset;
+      display: block;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      background: #F6F8FA;
+    }
+
+    /* ===== Copy Button ===== */
+    .copy-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--text-light);
+      transition: all 0.15s;
+      opacity: 0;
+    }
+
+    pre:hover .copy-btn {
+      opacity: 1;
+    }
+
+    .copy-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* ===== Config Dialog ===== */
+    #config-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .config-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .config-card h2 {
+      font-size: 20px;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+
+    .config-card p {
+      font-size: 14px;
+      color: var(--text-light);
+      margin-bottom: 16px;
+    }
+
+    .config-card input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .config-card input:focus {
+      border-color: var(--primary);
+    }
+
+    .config-card button {
+      width: 100%;
+      padding: 10px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .config-card button:hover {
+      background: var(--primary-dark);
+    }
+
+    .config-card details {
+      margin-top: 12px;
+    }
+
+    .config-card summary {
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--primary);
+    }
+
+    .config-card details small {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+
+    #config-error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    /* ===== Toast ===== */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 24px;
+      border-radius: var(--radius);
+      background: var(--primary-dark);
+      color: white;
+      font-size: 14px;
+      z-index: 2000;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+    }
+
+    #toast.error {
+      background: var(--danger);
+    }
+
+    /* ===== Sync Indicator ===== */
+    .sync-status {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .sync-status.syncing {
+      color: var(--primary);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 15px;
+      }
+
+      .header-right input {
+        width: 140px;
+      }
+
+      .header-right input:focus {
+        width: 180px;
+      }
+
+      .sidebar-toggle {
+        display: block;
+      }
+
+      #sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 900;
+        transition: left 0.25s;
+        box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
+      }
+
+      #sidebar.open {
+        left: 0;
+      }
+
+      #sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 899;
+      }
+
+      #sidebar-overlay.show {
+        display: block;
+      }
+
+      #content {
+        padding: 16px;
+      }
+
+      #view-title {
+        font-size: 20px;
+      }
+
+      .editor-textarea {
+        min-height: 250px;
+      }
+
+      .login-card {
+        padding: 28px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 8px 10px;
+        gap: 8px;
+      }
+
+      .header-right input {
+        width: 100px;
+        font-size: 13px;
+      }
+
+      .header-right input:focus {
+        width: 130px;
+      }
+
+      #content {
+        padding: 12px;
+      }
+
+      .editor-textarea {
+        min-height: 200px;
+      }
+
+      .note-meta {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== Login Page ===== -->
+  <div id="login-page">
+    <div class="login-card">
+      <div class="login-icon">📓</div>
+      <h1>Notes Notebook</h1>
+      <div class="login-subtitle">Personal Knowledge Base</div>
+      <input type="password" id="password-input" placeholder="Enter password" autofocus>
+      <button onclick="login()">Login</button>
+      <p id="login-error"></p>
+    </div>
+  </div>
+
+  <!-- ===== Main App ===== -->
+  <div id="app">
+    <header>
+      <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+      <h1>📓 Notes Notebook</h1>
+      <div class="header-right">
+        <input type="text" id="search-input" placeholder="Search notes..." oninput="onSearchInput()">
+        <button class="btn-icon" onclick="refreshNotes()" title="Refresh from GitHub">🔄</button>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <div class="main-container">
+      <!-- Sidebar overlay for mobile -->
+      <div id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+      <aside id="sidebar">
+        <div class="sidebar-section">
+          <h3>Tags</h3>
+          <div id="tag-list"></div>
+        </div>
+        <button class="btn-new" onclick="newNote()">+ New Note</button>
+        <div id="note-list" class="note-list"></div>
+      </aside>
+
+      <main id="content">
+        <!-- Config Dialog -->
+        <div id="config-dialog">
+          <div class="config-card">
+            <h2>GitHub Setup</h2>
+            <p>Enter your GitHub details to enable cloud sync. Notes are stored as <code>notes.json</code> in your repo.
+            </p>
+            <input type="text" id="config-owner" placeholder="GitHub username">
+            <input type="text" id="config-repo" placeholder="Repository name">
+            <input type="password" id="config-token" placeholder="Fine-grained PAT (read/write contents)">
+            <div style="display:flex;gap:8px">
+              <button onclick="testGitHubConnection()"
+                style="flex:0;padding:10px 16px;background:var(--card-bg);color:var(--text);border:1px solid var(--border)">Test</button>
+              <button onclick="saveGitHubConfig()" style="flex:1">Connect</button>
+            </div>
+            <p id="config-error" class="error"></p>
+            <p style="margin-top:12px;text-align:center"><a href="#" onclick="dismissConfig();return false"
+                style="font-size:13px;color:var(--text-muted)">Skip — use local storage only</a></p>
+            <details>
+              <summary>How to create a PAT?</summary>
+              <small>
+                1. Go to GitHub Settings → Developer settings → Personal access tokens → Fine-grained tokens<br>
+                2. Click "Generate new token"<br>
+                3. Set "Repository access" to "Only select repositories" → choose your notes repo<br>
+                4. Under "Permissions" → "Contents" → set to "Read and write"<br>
+                5. Generate and copy the token, then paste it above
+              </small>
+            </details>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state">
+          <div class="empty-icon">📓</div>
+          <h2>Welcome to Notes Notebook</h2>
+          <p>Select a note or click "+ New Note" to get started</p>
+        </div>
+
+        <!-- Note View -->
+        <div id="note-view" style="display:none">
+          <div class="content-toolbar">
+            <div class="note-meta">
+              <span id="view-date"></span>
+              <span class="sync-status" id="sync-status"></span>
+            </div>
+            <div class="toolbar-actions">
+              <button onclick="editCurrentNote()">✏️ Edit</button>
+              <button class="btn-danger" onclick="deleteCurrentNote()">🗑️ Delete</button>
+            </div>
+          </div>
+          <h2 id="view-title"></h2>
+          <div id="view-tags" class="tags-display"></div>
+          <div id="view-content" class="markdown-body"></div>
+        </div>
+
+        <!-- Note Editor -->
+        <div id="note-editor" style="display:none">
+          <div class="editor-tabs">
+            <button class="tab active" id="tabEdit" onclick="switchEditorTab('edit')">Edit</button>
+            <button class="tab" id="tabPreview" onclick="switchEditorTab('preview')">Preview</button>
+          </div>
+          <input type="text" id="edit-title" placeholder="Note title">
+          <input type="text" id="edit-tags" placeholder="Tags (comma-separated, e.g. Python, Git, Linux)">
+          <div class="editor-toolbar">
+            <label class="btn-upload">
+              📷 Upload Image
+              <input type="file" accept="image/*" id="imageInput" hidden>
+            </label>
+            <span class="hint">Or paste image from clipboard (Ctrl+V)</span>
+          </div>
+          <textarea id="edit-content" class="editor-textarea" placeholder="Write your Markdown here...
+
+# Heading
+```python
+print('hello')
+```
+**bold** *italic* [link](url)"></textarea>
+          <div id="preview-pane" class="markdown-body" style="display:none"></div>
+          <div class="editor-actions">
+            <span class="save-status" id="saveStatus"></span>
+            <button onclick="cancelEdit()">Cancel</button>
+            <button onclick="saveNote()" class="btn-primary">💾 Save</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- CDN Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    /* ============================================================
+       CONFIGURATION
+       ============================================================ */
+    window.__CONFIG__ = {
+      PASSWORD_HASH: "99c972b8a97516d532708ca19f069de7d8552fd7a4f5aa6cd90dbb52a023ff66",
+      GITHUB_OWNER: "lzlzzzy",
+      GITHUB_REPO: "mynote",
+      GITHUB_BRANCH: "main",
+    };
+
+    /* ============================================================
+       STATE
+       ============================================================ */
+    let notes = [];
+    let currentNoteId = null;
+    let editingId = null;     // null = creating new, string = editing existing
+    let currentTag = "";
+    let isDirty = false;
+
+    /* ============================================================
+       AUTH
+       ============================================================ */
+    async function hashPassword(password) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(password);
+      const hash = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function login() {
+      const input = document.getElementById("password-input").value;
+      const hash = await hashPassword(input);
+      if (hash === window.__CONFIG__.PASSWORD_HASH) {
+        sessionStorage.setItem("notes_logged_in", "true");
+        document.getElementById("login-page").style.display = "none";
+        document.getElementById("app").style.display = "flex";
+        initApp();
+      } else {
+        document.getElementById("login-error").textContent = "Invalid password";
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem("notes_logged_in");
+      location.reload();
+    }
+
+    /* ============================================================
+       INIT
+       ============================================================ */
+    // Check login on page load
+    (function checkLogin() {
+      if (sessionStorage.getItem("notes_logged_in") === "true") {
+        document.getElementById("login-page").style.display = "none";
+        document.getElementById("app").style.display = "flex";
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", initApp);
+        } else {
+          initApp();
+        }
+      }
+    })();
+
+    // Enter key on password field
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("password-input").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") login();
+      });
+      // Image upload handler
+      document.getElementById("imageInput").addEventListener("change", handleImageUpload);
+    });
+
+    function initApp() {
+      const config = getGitHubConfig();
+      if (config.owner && config.repo && config.token) {
+        loadNotes();
+      } else {
+        // Load local backup as fallback
+        loadLocalBackup();
+        if (notes.length === 0) {
+          showConfigDialog();
+        } else {
+          showConfigDialog();
+          renderAll();
+          showSyncStatus("Local mode — configure GitHub for cloud sync", false);
+        }
+      }
+    }
+
+    /* ============================================================
+       GITHUB CONFIG
+       ============================================================ */
+    function getGitHubConfig() {
+      return {
+        owner: window.__CONFIG__.GITHUB_OWNER || localStorage.getItem("gh_owner") || "",
+        repo: window.__CONFIG__.GITHUB_REPO || localStorage.getItem("gh_repo") || "",
+        token: localStorage.getItem("gh_token") || "",
+        branch: window.__CONFIG__.GITHUB_BRANCH || localStorage.getItem("gh_branch") || "main"
+      };
+    }
+
+    function showConfigDialog() {
+      const cfg = getGitHubConfig();
+      if (cfg.owner) document.getElementById("config-owner").value = cfg.owner;
+      if (cfg.repo) document.getElementById("config-repo").value = cfg.repo;
+      if (cfg.token) document.getElementById("config-token").value = cfg.token;
+      document.getElementById("config-dialog").style.display = "flex";
+    }
+
+    function hideConfigDialog() {
+      document.getElementById("config-dialog").style.display = "none";
+    }
+
+    function saveGitHubConfig() {
+      const owner = document.getElementById("config-owner").value.trim();
+      const repo = document.getElementById("config-repo").value.trim();
+      const token = document.getElementById("config-token").value.trim();
+      if (!owner || !repo || !token) {
+        document.getElementById("config-error").textContent = "All fields are required";
+        return;
+      }
+      localStorage.setItem("gh_owner", owner);
+      localStorage.setItem("gh_repo", repo);
+      localStorage.setItem("gh_token", token);
+      document.getElementById("config-error").textContent = "";
+      hideConfigDialog();
+      loadNotes();
+    }
+
+    async function testGitHubConnection() {
+      const owner = document.getElementById("config-owner").value.trim();
+      const repo = document.getElementById("config-repo").value.trim();
+      const token = document.getElementById("config-token").value.trim();
+      if (!owner || !repo || !token) {
+        document.getElementById("config-error").textContent = "Fill in all fields first";
+        return;
+      }
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+          headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github.v3+json" }
+        });
+        if (res.ok) {
+          document.getElementById("config-error").textContent = "✅ Connection successful!";
+          document.getElementById("config-error").style.color = "var(--success)";
+        } else {
+          document.getElementById("config-error").textContent = "❌ " + (await res.json()).message;
+          document.getElementById("config-error").style.color = "var(--danger)";
+        }
+      } catch (e) {
+        document.getElementById("config-error").textContent = "❌ Network error: " + e.message;
+        document.getElementById("config-error").style.color = "var(--danger)";
+      }
+    }
+
+    function dismissConfig() {
+      hideConfigDialog();
+      if (notes.length === 0) {
+        document.getElementById("empty-state").style.display = "block";
+      }
+      showSyncStatus("Local mode — no cloud sync", false);
+    }
+
+    /* ============================================================
+       GITHUB API
+       ============================================================ */
+    function encodeBase64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      return btoa(binary);
+    }
+
+    function decodeBase64(str) {
+      const binary = atob(str);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return new TextDecoder().decode(bytes);
+    }
+
+    async function loadNotes() {
+      const cfg = getGitHubConfig();
+      if (!cfg.owner || !cfg.repo || !cfg.token) {
+        showConfigDialog();
+        return;
+      }
+      showSyncStatus("Loading...", true);
+      try {
+        const res = await fetch(
+          `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${window.__CONFIG__.NOTES_FILE}?ref=${cfg.branch}`,
+          { headers: { "Authorization": `Bearer ${cfg.token}`, "Accept": "application/vnd.github.v3+json" } }
+        );
+        if (res.status === 404) {
+          notes = [];
+          localStorage.removeItem("notes_sha");
+          renderAll();
+          showSyncStatus("Empty notebook — create your first note!", false);
+          return;
+        }
+        if (!res.ok) throw new Error(`GitHub API: ${res.status} ${res.statusText}`);
+        const data = await res.json();
+        localStorage.setItem("notes_sha", data.sha);
+        notes = JSON.parse(decodeBase64(data.content));
+        renderAll();
+        showSyncStatus("Synced", false);
+      } catch (err) {
+        showSyncStatus("Load failed: " + err.message, false);
+        showToast("Failed to load notes: " + err.message, true);
+      }
+    }
+
+    async function saveNotesToGitHub(showToastMsg) {
+      const cfg = getGitHubConfig();
+      if (!cfg.owner || !cfg.repo || !cfg.token) return;
+      showSyncStatus("Saving...", true);
+      try {
+        const content = encodeBase64(JSON.stringify(notes, null, 2));
+        const sha = localStorage.getItem("notes_sha");
+        const body = { message: "Update notes", content: content, branch: cfg.branch };
+        if (sha) body.sha = sha;
+        const res = await fetch(
+          `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${window.__CONFIG__.NOTES_FILE}`,
+          { method: "PUT", headers: { "Authorization": `Bearer ${cfg.token}`, "Accept": "application/vnd.github.v3+json", "Content-Type": "application/json" }, body: JSON.stringify(body) }
+        );
+        if (res.status === 409) {
+          showSyncStatus("Conflict — reloading...", false);
+          await loadNotes();
+          showToast("Conflict detected. Reloaded from GitHub.", true);
+          return;
+        }
+        if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
+        const data = await res.json();
+        localStorage.setItem("notes_sha", data.content.sha);
+        isDirty = false;
+        showSyncStatus("Saved", false);
+        if (showToastMsg !== false) showToast("Note saved! ✅");
+      } catch (err) {
+        showSyncStatus("Save failed", false);
+        showToast("Failed to save: " + err.message, true);
+      }
+    }
+
+    async function refreshNotes() {
+      await loadNotes();
+    }
+
+    function showSyncStatus(msg, isSyncing) {
+      const el = document.getElementById("sync-status");
+      if (el) {
+        el.textContent = msg;
+        el.className = "sync-status" + (isSyncing ? " syncing" : "");
+      }
+    }
+
+    /* ============================================================
+       NOTES CRUD
+       ============================================================ */
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function getNoteById(id) {
+      return notes.find(n => n.id === id);
+    }
+
+    function newNote() {
+      editingId = null;
+      currentNoteId = null;
+      document.getElementById("empty-state").style.display = "none";
+      document.getElementById("note-view").style.display = "none";
+      document.getElementById("note-editor").style.display = "block";
+      document.getElementById("edit-title").value = "";
+      document.getElementById("edit-tags").value = "";
+      document.getElementById("edit-content").value = "";
+      switchEditorTab("edit");
+      document.getElementById("edit-title").focus();
+      document.getElementById("saveStatus").textContent = "Creating new note...";
+    }
+
+    function editCurrentNote() {
+      const note = getNoteById(currentNoteId);
+      if (!note) return;
+      editingId = note.id;
+      document.getElementById("note-view").style.display = "none";
+      document.getElementById("note-editor").style.display = "block";
+      document.getElementById("edit-title").value = note.title || "";
+      document.getElementById("edit-tags").value = (note.tags || []).join(", ");
+      document.getElementById("edit-content").value = note.content || "";
+      switchEditorTab("edit");
+      document.getElementById("edit-title").focus();
+      document.getElementById("saveStatus").textContent = "Editing...";
+    }
+
+    async function saveNote() {
+      const title = document.getElementById("edit-title").value.trim();
+      const content = document.getElementById("edit-content").value;
+      const tags = document.getElementById("edit-tags").value.split(",").map(t => t.trim()).filter(Boolean);
+
+      if (!title) {
+        showToast("Title is required", true);
+        document.getElementById("edit-title").focus();
+        return;
+      }
+
+      if (editingId) {
+        // Update existing note
+        const note = getNoteById(editingId);
+        if (note) {
+          note.title = title;
+          note.content = content;
+          note.tags = tags;
+          note.updatedAt = new Date().toISOString();
+        }
+      } else {
+        // Create new note
+        const note = {
+          id: generateId(),
+          title: title,
+          content: content,
+          tags: tags,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        notes.push(note);
+        currentNoteId = note.id;
+        editingId = note.id;
+      }
+
+      renderAll();
+      saveLocalBackup(); // Always save locally
+      await saveNotesToGitHub(true);
+
+      // Show the note
+      document.getElementById("note-editor").style.display = "none";
+      showNoteView(currentNoteId);
+    }
+
+    function cancelEdit() {
+      if (editingId && getNoteById(editingId)) {
+        document.getElementById("note-editor").style.display = "none";
+        showNoteView(currentNoteId);
+      } else {
+        document.getElementById("note-editor").style.display = "none";
+        if (currentNoteId && getNoteById(currentNoteId)) {
+          showNoteView(currentNoteId);
+        } else {
+          document.getElementById("empty-state").style.display = "block";
+        }
+      }
+    }
+
+    function deleteCurrentNote() {
+      if (!currentNoteId) return;
+      const note = getNoteById(currentNoteId);
+      if (!note) return;
+      if (!confirm(`Delete "${note.title}"? This cannot be undone.`)) return;
+
+      notes = notes.filter(n => n.id !== currentNoteId);
+      const deletedId = currentNoteId;
+      currentNoteId = null;
+      editingId = null;
+
+      renderAll();
+      saveLocalBackup();
+      saveNotesToGitHub(true);
+
+      document.getElementById("note-view").style.display = "none";
+      document.getElementById("note-editor").style.display = "none";
+      if (notes.length > 0) {
+        showNoteView(notes[0].id);
+      } else {
+        document.getElementById("empty-state").style.display = "block";
+      }
+    }
+
+    /* ============================================================
+       UI RENDERING
+       ============================================================ */
+    function renderAll() {
+      renderTagList();
+      renderNoteList();
+      renderSyncIndicator();
+    }
+
+    function getFilteredNotes() {
+      const query = (document.getElementById("search-input").value || "").toLowerCase().trim();
+      return notes.filter(n => {
+        // Tag filter
+        if (currentTag && !(n.tags || []).map(t => t.toLowerCase()).includes(currentTag.toLowerCase())) return false;
+        // Search filter
+        if (query) {
+          const title = (n.title || "").toLowerCase();
+          const content = (n.content || "").toLowerCase();
+          if (!title.includes(query) && !content.includes(query)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderNoteList() {
+      const filtered = getFilteredNotes();
+      const container = document.getElementById("note-list");
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;text-align:center">No notes found</div>';
+        return;
+      }
+      container.innerHTML = "";
+      filtered.forEach(note => {
+        const div = document.createElement("div");
+        div.className = "note-item" + (note.id === currentNoteId ? " active" : "");
+        div.onclick = () => selectNote(note.id);
+
+        const title = document.createElement("div");
+        title.className = "note-item-title";
+        title.textContent = note.title || "Untitled";
+
+        const preview = document.createElement("div");
+        preview.className = "note-item-preview";
+        const plain = (note.content || "").replace(/[#*`\[\]!>|_-]/g, " ").replace(/\s+/g, " ").trim();
+        preview.textContent = plain.slice(0, 80) || "No content";
+
+        div.appendChild(title);
+        div.appendChild(preview);
+
+        if (note.tags && note.tags.length > 0) {
+          const tagsDiv = document.createElement("div");
+          tagsDiv.className = "note-item-tags";
+          note.tags.forEach(t => {
+            const span = document.createElement("span");
+            span.className = "note-item-tag";
+            span.textContent = t;
+            tagsDiv.appendChild(span);
+          });
+          div.appendChild(tagsDiv);
+        }
+
+        container.appendChild(div);
+      });
+    }
+
+    function renderTagList() {
+      const tagSet = new Set();
+      notes.forEach(n => (n.tags || []).forEach(t => { if (t.trim()) tagSet.add(t.trim()); }));
+      const tags = Array.from(tagSet).sort();
+      const container = document.getElementById("tag-list");
+      container.innerHTML = "";
+
+      const allBtn = document.createElement("button");
+      allBtn.className = "tag-btn" + (currentTag === "" ? " active" : "");
+      allBtn.textContent = "All";
+      allBtn.onclick = () => { currentTag = ""; renderAll(); };
+      container.appendChild(allBtn);
+
+      tags.forEach(tag => {
+        const btn = document.createElement("button");
+        btn.className = "tag-btn" + (currentTag === tag ? " active" : "");
+        btn.textContent = tag;
+        btn.onclick = () => { currentTag = tag; renderAll(); };
+        container.appendChild(btn);
+      });
+    }
+
+    function renderSyncIndicator() {
+      const el = document.getElementById("sync-status");
+      if (el && !el.classList.contains("syncing")) {
+        el.textContent = notes.length + " notes";
+      }
+    }
+
+    function selectNote(id) {
+      currentNoteId = id;
+      editingId = null;
+      document.getElementById("note-editor").style.display = "none";
+      document.getElementById("empty-state").style.display = "none";
+      renderNoteList();
+      showNoteView(id);
+      closeSidebar();
+    }
+
+    function showNoteView(id) {
+      const note = getNoteById(id);
+      if (!note) {
+        document.getElementById("note-view").style.display = "none";
+        document.getElementById("empty-state").style.display = "block";
+        return;
+      }
+      document.getElementById("note-view").style.display = "block";
+      document.getElementById("empty-state").style.display = "none";
+      document.getElementById("view-title").textContent = note.title || "Untitled";
+
+      // Tags
+      const tagsContainer = document.getElementById("view-tags");
+      tagsContainer.innerHTML = "";
+      (note.tags || []).forEach(tag => {
+        const span = document.createElement("span");
+        span.className = "tag-badge";
+        span.textContent = tag;
+        span.onclick = () => { currentTag = tag; renderAll(); closeSidebar(); };
+        tagsContainer.appendChild(span);
+      });
+
+      // Date
+      const dateEl = document.getElementById("view-date");
+      if (note.updatedAt) {
+        dateEl.textContent = "Updated: " + new Date(note.updatedAt).toLocaleString();
+      } else if (note.createdAt) {
+        dateEl.textContent = "Created: " + new Date(note.createdAt).toLocaleString();
+      } else {
+        dateEl.textContent = "";
+      }
+
+      // Render markdown
+      renderMarkdown(note.content || "");
+    }
+
+    /* ============================================================
+       MARKDOWN RENDERING
+       ============================================================ */
+    function renderMarkdown(content) {
+      const container = document.getElementById("view-content");
+      if (!content) {
+        container.innerHTML = '<p style="color:var(--text-muted)"><em>No content</em></p>';
+        return;
+      }
+      try {
+        const html = marked.parse(content);
+        container.innerHTML = html;
+        // Apply syntax highlighting
+        if (typeof hljs !== "undefined") {
+          container.querySelectorAll("pre code").forEach(block => {
+            hljs.highlightElement(block);
+          });
+        }
+        // Add copy buttons
+        addCopyButtons(container);
+      } catch (e) {
+        container.innerHTML = "<p>Error rendering markdown</p>";
+      }
+    }
+
+    function addCopyButtons(container) {
+      container.querySelectorAll("pre").forEach(pre => {
+        if (pre.querySelector(".copy-btn")) return;
+        // Only add to actual code blocks (not already processed)
+        const btn = document.createElement("button");
+        btn.className = "copy-btn";
+        btn.innerHTML = "📋 Copy";
+        btn.onclick = async function (e) {
+          e.stopPropagation();
+          const code = pre.querySelector("code");
+          if (!code) return;
+          const text = code.textContent;
+          try {
+            await navigator.clipboard.writeText(text);
+            this.innerHTML = "✅ Copied!";
+          } catch (_) {
+            // Fallback
+            try {
+              const ta = document.createElement("textarea");
+              ta.value = text;
+              ta.style.position = "fixed";
+              ta.style.opacity = "0";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+              this.innerHTML = "✅ Copied!";
+            } catch (_) {
+              this.innerHTML = "❌ Failed";
+            }
+          }
+          setTimeout(() => { this.innerHTML = "📋 Copy"; }, 2000);
+        };
+        pre.style.position = "relative";
+        pre.appendChild(btn);
+      });
+    }
+
+    /* ============================================================
+       EDITOR
+       ============================================================ */
+    function switchEditorTab(tab) {
+      const textarea = document.getElementById("edit-content");
+      const preview = document.getElementById("preview-pane");
+      const tabEdit = document.getElementById("tabEdit");
+      const tabPreview = document.getElementById("tabPreview");
+
+      if (tab === "preview") {
+        textarea.style.display = "none";
+        preview.style.display = "block";
+        tabEdit.classList.remove("active");
+        tabPreview.classList.add("active");
+        // Render preview
+        try {
+          const html = marked.parse(textarea.value || "");
+          preview.innerHTML = html;
+          if (typeof hljs !== "undefined") {
+            preview.querySelectorAll("pre code").forEach(block => hljs.highlightElement(block));
+          }
+          addCopyButtons(preview);
+        } catch (e) {
+          preview.innerHTML = "<p>Error rendering preview</p>";
+        }
+      } else {
+        textarea.style.display = "block";
+        preview.style.display = "none";
+        tabEdit.classList.add("active");
+        tabPreview.classList.remove("active");
+      }
+    }
+
+    /* ============================================================
+       IMAGE HANDLING
+       ============================================================ */
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        showToast("Please select an image file", true);
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("Image too large (max 5MB). Consider using a smaller image.", true);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const imgMd = `\n![${file.name}](${e.target.result})\n`;
+        insertAtCursor(document.getElementById("edit-content"), imgMd);
+      };
+      reader.readAsDataURL(file);
+      event.target.value = "";
+    }
+
+    // Paste image from clipboard
+    document.addEventListener("DOMContentLoaded", function () {
+      const editContent = document.getElementById("edit-content");
+      editContent.addEventListener("paste", function (e) {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.startsWith("image/")) {
+            e.preventDefault();
+            const file = items[i].getAsFile();
+            if (!file) continue;
+            if (file.size > 5 * 1024 * 1024) {
+              showToast("Image too large (max 5MB)", true);
+              continue;
+            }
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+              insertAtCursor(editContent, `\n![pasted-image](${ev.target.result})\n`);
+            };
+            reader.readAsDataURL(file);
+            break;
+          }
+        }
+      });
+    });
+
+    function insertAtCursor(textarea, text) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end);
+      textarea.selectionStart = textarea.selectionEnd = start + text.length;
+      textarea.focus();
+    }
+
+    /* ============================================================
+       SEARCH & FILTER
+       ============================================================ */
+    function onSearchInput() {
+      renderNoteList();
+    }
+
+    function filterByTag(tag) {
+      currentTag = tag;
+      renderAll();
+      closeSidebar();
+    }
+
+    /* ============================================================
+       SIDEBAR (Mobile)
+       ============================================================ */
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebarOverlay").classList.toggle("show");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarOverlay").classList.remove("show");
+    }
+
+    /* ============================================================
+       TOAST
+       ============================================================ */
+    let toastTimer = null;
+
+    function showToast(msg, isError) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.className = isError ? "show error" : "show";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.className = ""; }, 3000);
+    }
+
+    /* ============================================================
+       LOCAL FALLBACK (when GitHub is not configured)
+       ============================================================ */
+    // Save to localStorage as a fallback
+    function saveLocalBackup() {
+      try {
+        localStorage.setItem("notes_backup", JSON.stringify(notes));
+      } catch (e) {
+        // localStorage might be full (large base64 images)
+        console.warn("Local backup failed:", e);
+      }
+    }
+
+    function loadLocalBackup() {
+      try {
+        const data = localStorage.getItem("notes_backup");
+        if (data) notes = JSON.parse(data);
+      } catch (e) {
+        notes = [];
+      }
+    }
+
+    /* ============================================================
+       AUTOSAVE (save local backup on changes)
+       ============================================================ */
+    // We call saveLocalBackup after every note mutation
+    // The GitHub save is explicit (via saveNote)
+
+  </script>
+</body>
+
+</html>
